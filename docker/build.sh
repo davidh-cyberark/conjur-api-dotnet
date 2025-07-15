@@ -7,7 +7,13 @@ function repo_root() {
 
 function project_version() {
   # VERSION derived from CHANGELOG and automated release library
-  echo "$(<"$(repo_root)/VERSION")"
+  fullVersion=$(<"$(repo_root)/VERSION")
+  # Only use base version (strip any suffix, e.g. "-dev" or build number)
+  if [[ "$fullVersion" == *-* ]]; then
+    echo "${fullVersion%%-*}"
+  else
+    echo "$fullVersion"
+  fi
 }
 
 # Create a clean copy of the source code for build
@@ -29,12 +35,9 @@ cp /build/TestResults/*/*.cobertura.xml /build/Coverage.xml
 
 # build
 VERSION=$(project_version)
+#TODO: Use base version only
 dotnet build api-dotnet.sln --configuration Release /p:AssemblyVersion="$VERSION"
 
-# publish
-if [ -z "${WRITE_ARTIFACTORY_URL:-}" ]; then
-  echo "WRITE_ARTIFACTORY_URL is not set, skipping nuget push"
-  exit 0
-fi
-
-docker/nuget.sh "$VERSION"
+# package
+mkdir nugetPackages
+dotnet pack -o ./nugetPackages --version-suffix "$VERSION"

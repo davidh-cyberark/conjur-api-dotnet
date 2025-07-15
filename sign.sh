@@ -1,6 +1,5 @@
 #!/bin/sh -xe
 
-TAG=`cat docker/tag`
 CIDFILE=`mktemp -u`
 
 finish() {
@@ -23,7 +22,7 @@ conjur env run --yaml '{
   -e PKCS \
   -e PKCS_PASS \
   -e SN \
-  $TAG /sign.sh
+  dotnet-builder:dev /sign.sh
 
 CID=`cat $CIDFILE`
 docker cp $CID:/conjur-api.dll.signed bin/conjur-api.dll
