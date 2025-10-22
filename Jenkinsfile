@@ -11,7 +11,7 @@ properties([
 
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
-  release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
+  release.promote(params.VERSION_TO_PROMOTE) { infrapool, sourceVersion, targetVersion, assetDirectory ->
     // Copy any artifacts to assetDirectory so they can be accessed by the release script
     infrapool.agentSh "cp -r bin/* ${assetDirectory}"
     // Release the package to Artifactory and Nuget.org
