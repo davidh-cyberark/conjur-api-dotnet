@@ -12,7 +12,10 @@ properties([
 // Performs release promotion.  No other stages will be run
 if (params.MODE == "PROMOTE") {
   release.promote(params.VERSION_TO_PROMOTE) { sourceVersion, targetVersion, assetDirectory ->
-
+    // Copy any artifacts to assetDirectory so they can be accessed by the release script
+    infrapool.agentSh "cp -r bin/* ${assetDirectory}"
+    // Release the package to Artifactory and Nuget.org
+    infrapool.agentSh "ASSET_DIR=${assetDirectory} summon -e promote ./release.sh"
   }
   // Copy Github Enterprise release to Github
   release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
@@ -89,28 +92,10 @@ pipeline {
       }
     }
 
-    stage('Prepare build environment') {
-      steps {
-        script {
-          infrapool.agentSh '''
-            # make sure the build env is up to date
-            make -C docker
-
-            TAG=`cat docker/tag`
-
-            if [ -z `docker images -q $TAG` ]; then
-              # the image is not present, so pull or build
-              docker pull $TAG || make -C docker rebuild && make -C docker push
-            fi
-          '''
-        }
-      }
-    }
-
     stage('Build and test package') {
       steps {
         script {
-          infrapool.agentSh "summon -e pipeline ./build.sh"
+          infrapool.agentSh "summon -e build ./build.sh"
           infrapool.agentStash name: 'test-results', includes: '*.xml'
           unstash 'test-results'
           junit 'TestResults.xml'
@@ -142,10 +127,11 @@ pipeline {
       steps {
         script {
           release(infrapool) { billOfMaterialsDirectory, assetDirectory, toolsDirectory ->
-            // Publish release artifacts to all the appropriate locations
-
             // Copy any artifacts to assetDirectory to attach them to the Github release
             infrapool.agentSh "cp -r bin/* ${assetDirectory}"
+
+            // Release the package to Artifactory
+            infrapool.agentSh "ASSET_DIR=${assetDirectory} summon -e release ./release.sh"
           }
         }
       }

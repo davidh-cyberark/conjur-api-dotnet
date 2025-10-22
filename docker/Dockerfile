@@ -7,4 +7,5 @@ RUN apt-get update -y && \
     apt-get clean
 
 RUN ln -s /src/docker/build.sh /
+RUN ln -s /src/docker/release.sh /
 CMD ["/build.sh"]

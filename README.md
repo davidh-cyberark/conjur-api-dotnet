@@ -4,6 +4,8 @@ Programmatic .NET access to CyberArk Secrets Manager and Conjur OSS.
 This .NET SDK allows developers to build new apps in .NET that communicate with Secrets Manager by
 invoking our Secrets Manager API to perform operations on stored data (add, retrieve, etc)
 
+[![NuGet Version](https://img.shields.io/nuget/v/conjur-api)](https://www.nuget.org/packages/conjur-api/)
+
 ## Table of Contents
 
 - [Using this Project With Conjur Open Source](#using-conjur-api-dotnet-with-conjur-open-source)
@@ -44,10 +46,9 @@ and build the solution. This will create:
 
 ### Docker
 
-To build in a Docker container, run the following commands:
+To build in a Docker container, run the following command:
 
 ```bash
-make -C docker
 ./build.sh
 ```
 
