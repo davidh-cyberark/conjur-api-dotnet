@@ -8,6 +8,6 @@ dotnet nuget add source "https://$WRITE_ARTIFACTORY_URL/artifactory/api/nuget/co
 
 dotnet nuget push conjur-api.*.nupkg --source "conjur-api-dotnet"
 
-if [ "$NUGET_API_KEY" != "" ]; then
+if [ "${NUGET_API_KEY:-}" != "" ]; then
   dotnet nuget push conjur-api.*.nupkg --source "https://api.nuget.org/v3/index.json" -k "$NUGET_API_KEY"
 fi
